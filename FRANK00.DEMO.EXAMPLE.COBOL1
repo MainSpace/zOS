@@ -1,0 +1,166 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. FILE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL
+           SELECT IN-FILE1 ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT IN-FILE2 ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT O-FILE ASSIGN TO DISK
+           ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT S-FILE ASSIGN TO DISK.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD IN-FILE1
+           VALUE OF FILE-ID IS "ZONE1.TXT"
+           LABEL RECORDS ARE STANDARD
+           DATA RECORD IS IN1-REC.
+       01 IN1-REC.
+          02 IN1-ZNAME PIC X(15).
+          02 IN1-DNAME PIC A(25).
+          02 IN1-SNAME PIC A(20).
+          02 IN1-PNAME PIC X(10).
+          02 IN1-AMT PIC 9(4)V99.
+
+       FD IN-FILE2
+           VALUE OF FILE-ID IS "ZONE2.TXT"
+           LABEL RECORDS ARE STANDARD
+           DATA RECORD IS IN2-REC.
+       01 IN2-REC.
+          02 IN2-ZNAME PIC X(15).
+          02 IN2-DNAME PIC A(25).
+          02 IN2-SNAME PIC A(20).
+          02 IN2-PNAME PIC X(10).
+          02 IN2-AMT PIC 9(4)V99.
+
+       FD O-FILE
+          VALUE OF FILE-ID IS "MERGED.TXT"
+          LABEL RECORDS ARE STANDARD
+          DATA RECORD IS O-REC.
+       01 O-REC.
+          02 O-ZNAME PIC X(15).
+          02 O-DNAME PIC A(25).
+          02 O-SNAME PIC A(20).
+          02 O-PNAME PIC X(10).
+          02 O-AMT PIC 9(4)V99.
+
+       SD S-FILE
+          DATA RECORD IS S-REC.
+       01 S-REC.
+          02 S-ZNAME PIC X(15).
+          02 S-DNAME PIC A(25).
+          02 S-SNAME PIC A(20).
+          02 S-PNAME PIC X(10).
+          02 S-AMT PIC 9(4)V99.
+
+       WORKING-STORAGE SECTION.
+       01 CHOICE PIC X VALUE SPACE.
+       01 CHOICE1 PIC X VALUE SPACE.
+       01 EOF PIC X.
+       01 HD1.
+          02 FILLER PIC X(30) VALUE SPACES.
+          02 FILLER PIC X(20) VALUE "MARKETING DETAILS".
+          02 FILLER PIC X(30) VALUE SPACES.
+       01 HD2.
+
+          02 FILLER PIC X(15) VALUE "ZONE NAME".
+
+          02 FILLER PIC X(25) VALUE "DST-NAME".
+
+          02 FILLER PIC X(20) VALUE "SLSMN NAME".
+
+          02 FILLER PIC X(10) VALUE "PRD NAME".
+          02 FILLER PIC X(2) VALUE SPACES.
+          02 FILLER PIC X(6) VALUE "AMOUNT".
+       01 HD3.
+          02 FILLER PIC X(80) VALUE ALL "-".
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           MOVE 8 TO LIN.
+
+           PERFORM OPEN1-PARA.
+           PERFORM ACCEPT1-PARA UNTIL CHOICE = "N".
+           PERFORM CLOSE1-PARA.
+
+           PERFORM OPEN2-PARA.
+           PERFORM ACCEPT2-PARA UNTIL CHOICE1 = "N".
+           PERFORM CLOSE2-PARA.
+
+           DISPLAY(1, 1) ERASE.
+           DISPLAY HD1.
+           DISPLAY HD3.
+           DISPLAY HD2.
+           DISPLAY HD3.
+
+           PERFORM MRG-PARA.
+           PERFORM OPEN-PARA.
+           PERFORM READ-PARA.
+           PERFORM DISPLAY-PARA UNTIL EOF = "Y".
+
+           PERFORM CLOSE-PARA.
+           STOP RUN.
+       OPEN1-PARA.
+           OPEN OUTPUT IN-FILE1.
+       OPEN2-PARA.
+           OPEN OUTPUT IN-FILE2.
+       OPEN-PARA.
+           OPEN INPUT O-FILE.
+       ACCEPT1-PARA.
+           DISPLAY "ZONE 1 DETAILS".
+           MOVE SPACES TO IN1-REC.
+           DISPLAY " ENTER THE ZONE NAME ".
+           ACCEPT IN1-ZNAME.
+           DISPLAY " ENTER THE DISTRICT NAME ".
+           ACCEPT IN1-DNAME.
+           DISPLAY " ENTER THE SALESMAN NAME ".
+           ACCEPT IN1-SNAME.
+           DISPLAY " ENTER THE PRODUCT NAME ".
+           ACCEPT IN1-PNAME.
+           DISPLAY " ENTER THE AMOUNT ".
+           ACCEPT IN1-AMT.
+           WRITE IN1-REC.
+           DISPLAY " DO U WANT TO CONTINUE ".
+           ACCEPT CHOICE.
+
+       ACCEPT2-PARA.
+           DISPLAY "ZONE 2 DETAILS".
+           MOVE SPACES TO IN2-REC.
+           DISPLAY " ENTER THE ZONE NAME ".
+           ACCEPT IN2-ZNAME.
+           DISPLAY " ENTER THE DISTRICT NAME ".
+           ACCEPT IN2-DNAME.
+           DISPLAY " ENTER THE SALESMAN NAME ".
+           ACCEPT IN2-SNAME.
+           DISPLAY " ENTER THE PRODUCT NAME ".
+           ACCEPT IN2-PNAME.
+           DISPLAY " ENTER THE AMOUNT ".
+           ACCEPT IN2-AMT.
+           WRITE IN2-REC.
+           DISPLAY " DO U WANT TO CONTINUE ".
+           ACCEPT CHOICE1.
+
+       MRG-PARA.
+           MERGE S-FILE ON ASCENDING KEY S-ZNAME
+           USING IN-FILE1 IN-FILE2 GIVING O-FILE.
+
+       READ-PARA.
+           READ O-FILE AT END MOVE "Y" TO EOF.
+
+       DISPLAY-PARA.
+
+           COMPUTE LIN = LIN + 1.
+           DISPLAY (LIN , 1) O-ZNAME.
+           DISPLAY (LIN , 16) O-DNAME.
+           DISPLAY (LIN , 41) O-SNAME.
+           DISPLAY (LIN , 61) O-PNAME.
+           DISPLAY (LIN , 72) O-AMT.
+
+           PERFORM READ-PARA.
+       CLOSE1-PARA.
+           CLOSE IN-FILE1.
+       CLOSE2-PARA.
+           CLOSE IN-FILE2.
+       CLOSE-PARA.
+           CLOSE O-FILE.
