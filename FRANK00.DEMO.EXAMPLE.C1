@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   printf("Token = %d, %X\n", tsktoken, tsktoken);
   printf("MSG = %s\n", msg);
   if (rc != 0) {
-    printf("mfcinit failed. RC = %d MSG = %s", rc, msg);
+    printf("mfcinit failed. rc = %d msg = %s", rc, msg);
   }
 
   return 0;
