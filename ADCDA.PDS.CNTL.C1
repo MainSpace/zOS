@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+#pragma linkage(MFCM30,OS_DOWNSTACK)
+
+int   rc;
+int   tsktoken;
+char  msg[256];
+char  parms[128];
+
+int main(int argc, char *argv[]) {
+
+  memset(msg, '\0', 1);
+  strncpy(parms,argv[4],strlen(argv)-4);
+  printf("parms = %s\n", parms);
+
+  rc = mfcinit(argc, argv, &tsktoken, &msg);
+  printf("mfcinit RC = %d MSG = %s\n", rc, msg);
+  printf("Token = %d, %X\n", tsktoken, tsktoken);
+  printf("MSG = %s\n", msg);
+  if (rc != 0) {
+    printf("mfcinit failed. rc = %d msg = %s", rc, msg);
+  }
+
+  return 0;
+
+}
